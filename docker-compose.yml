@@ -23,7 +23,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: qwerty
     volumes:
-      - mongodb_data:/data/db
+      - /Users/salah/Desktop/mongoData:/data/db
 
   mongo-express:
     image: mongo-express:latest
@@ -35,7 +35,4 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: qwerty
     depends_on:
-      - mongodb  
-
-volumes:
-  mongodb_data:
+      - mongodb
