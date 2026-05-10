@@ -1,0 +1,41 @@
+# App container must use service hostname "mongodb" and port 27017 (in-network), not localhost.
+# Standalone (Mongo from compose on host 27018): docker run -p 5055:5050 -e MONGO_URL='mongodb://admin:qwerty@host.docker.internal:27018/?authSource=admin' testapp:1.0
+services:
+  app:
+    image: salahuddinjony/testapp:latest
+    container_name: docker-testapp-app
+    ports:
+      # Host 5055 avoids clashing with a local node server on 5050; container still listens on 5050.
+      - "5052:5050"
+    environment:
+      PORT: "5050"
+      MONGO_URL: mongodb://admin:qwerty@mongodb:27017/?authSource=admin
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:7
+    container_name: docker-testapp-mongodb
+    ports:
+      # Avoid conflict when host mongod already uses 27017 (localhost binds first).
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    volumes:
+      - mongodb_data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: docker-testapp-mongo-express
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: qwerty
+    depends_on:
+      - mongodb  
+
+volumes:
+  mongodb_data:
